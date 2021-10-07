@@ -55,10 +55,46 @@ class AccioPodcast:
                 temp = titles.h2
 
     def download_helper(self, filename, url):
-        pass
+        filename = filename + '.mp3'
+        tmp_file_name = filename + '.tmp'
+
+        cwd = Path.cwd()
+
+        file_path = cwd.joinpath(filename)
+        tmp_path = cwd.joinpath(tmp_file_name)
+
+        if file_path.exists():
+            return False
+
+        #remove an existing temp file
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+        with requests.get(url, stream=True) as response:
+            response.raise_for_status()
+
+            total = int(response.headers.get('content-length', 0))
+
+            with open(tmp_path, 'wb') as f, tqdm(
+                desc=filename,
+                total=total,
+                unit='iB',
+                unit_scale=True,
+                unit_divisor=1024
+            ) as bar:
+                for chunk in response.iter_content(chunk_size=8192):
+                    size = f.write(chunk)
+                    bar.update(size)
+
+        tmp_path.replace(filename)
+
+        return True
 
     def download_files(self):
-        pass
+        url = str(self.links[0])
+        # filename = self.names[0]
+        filename = "Testing file name"
+        self.download_helper(filename, url)
 
 
 if __name__ == "__main__":
