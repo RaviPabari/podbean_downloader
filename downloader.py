@@ -36,12 +36,22 @@ class AccioPodcast:
 
     def get_names_and_link(self):
         print("collecting your podcasts....")
-        for no_of_pages in range(1, self.pages + 1):
-            url = ""
-            if self.main_url[-1] == "/":
-                url = self.main_url + "page/" + str(no_of_pages)
+
+        if self.main_url[-1] == "/" and ("/page/" in self.main_url):
+            current_page = int(self.main_url.split("/")[-2])
+        elif "/page" not in self.main_url and self.main_url[-1] != "/":
+            current_page = 1
+            self.main_url += "/"
+
+        for no_of_pages in range(current_page, current_page + self.pages):
+            url = "/"
+            if "/page/" in self.main_url:
+                a = self.main_url.split("/")[0:4]
+                url = url.join(a)
+                url = url + "/" + str(no_of_pages)
             else:
-                url = self.main_url + "/page/" + str(no_of_pages)
+                url = self.main_url + "page/" + str(no_of_pages)
+
             source = requests.get(url)
             soup = bs.BeautifulSoup(source.text, "lxml")
 
